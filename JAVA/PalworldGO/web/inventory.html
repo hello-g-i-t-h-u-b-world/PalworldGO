@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>인벤토리</title>
+</head>
+<body>
+
+<h1>내 몬스터</h1>
+
+<div id="inventory-list"></div>
+
+<script>
+
+    async function loadInventory() {
+
+        const userId =
+            localStorage.getItem("userId");
+
+        const response = await fetch(
+            `http://localhost:8080/inventory?userId=${userId}`
+        );
+
+        const list =
+            await response.json();
+
+        const div =
+            document.getElementById(
+                "inventory-list"
+            );
+
+        list.forEach(monster => {
+
+            div.innerHTML += `
+            <div>
+                ${monster.name}
+                (${monster.type})
+            </div>
+        `;
+        });
+    }
+
+    loadInventory();
+
+</script>
+
+</body>
+</html>

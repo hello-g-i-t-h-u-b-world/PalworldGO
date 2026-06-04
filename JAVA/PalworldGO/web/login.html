@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+          name="viewport"
+          content="width=device-width,
+            initial-scale=1.0,
+            maximum-scale=1.0,
+            user-scalable=no"
+  >
+
+  <title>
+    Monster GO Login
+  </title>
+
+  <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  >
+
+  <link
+          rel="stylesheet"
+          href="style.css"
+  >
+</head>
+
+<body>
+
+<div class="login-container">
+
+  <div class="login-box">
+
+    <h1 class="login-title">
+      Monster GO
+    </h1>
+
+    <p class="login-subtitle">
+      몬스터를 수집하러 떠나보세요!
+    </p>
+
+    <!-- 아이디 입력 -->
+    <div class="input-group">
+
+      <i class="fas fa-user"></i>
+
+      <input
+              type="text"
+              id="username"
+              placeholder="아이디 입력"
+      >
+    </div>
+
+    <!-- 비밀번호 입력 -->
+    <div class="input-group">
+
+      <i class="fas fa-lock"></i>
+
+      <input
+              type="password"
+              id="password"
+              placeholder="비밀번호 입력"
+      >
+    </div>
+
+    <!-- 로그인 버튼 -->
+    <button
+            type="button"
+            class="login-btn"
+            onclick="login()"
+    >
+      로그인
+    </button>
+
+    <!-- 회원가입 버튼 -->
+    <button
+            type="button"
+            class="register-btn"
+            onclick="register()"
+    >
+      회원가입
+    </button>
+
+  </div>
+
+</div>
+
+<script src="login.js"></script>
+
+</body>
+</html>

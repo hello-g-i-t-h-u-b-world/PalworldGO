@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Collection</title>
+    <style>
+        body { background: #f0f0f0; font-family: sans-serif; margin: 0; padding: 20px; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .back-btn { background: white; border: none; padding: 10px; border-radius: 50%; cursor: pointer; margin-right: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .monster-card {
+            background: white; border-radius: 15px; padding: 10px;
+            text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .monster-card img { width: 100%; height: auto; margin-bottom: 8px; }
+        .m-name { font-size: 13px; font-weight: bold; display: block; }
+        .m-type { font-size: 10px; color: #777; background: #eee; padding: 2px 6px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <button class="back-btn" onclick="location.href='index.html'">◀</button>
+    <h1>몬스터 도감</h1>
+</div>
+
+<div id="pokedex-list" class="grid">
+    <!-- 로딩 중 표시 -->
+</div>
+
+<script>
+    async function loadPokedex() {
+        const userId = sessionStorage.getItem("userId");
+        if (!userId) {
+            alert("로그인이 필요합니다.");
+            location.href = "login.html";
+            return;
+        }
+
+        try {
+            // pokedex 테이블 정보를 가져오는 엔드포인트 호출
+            const response = await fetch(`http://localhost:8080/pokedex?userId=${userId}`);
+            const list = await response.json();
+
+            const container = document.getElementById("pokedex-list");
+            container.innerHTML = "";
+
+            list.forEach(monster => {
+                container.innerHTML += `
+                    <div class="monster-card">
+                        <img src="images/${monster.name}.png" onerror="this.src='images/default.png'">
+                        <span class="m-name">${monster.name}</span>
+                        <span class="m-type">${monster.type}</span>
+                    </div>
+                `;
+            });
+        } catch (e) {
+            console.error("도감 로딩 실패", e);
+        }
+    }
+
+    loadPokedex();
+</script>
+
+</body>
+</html>

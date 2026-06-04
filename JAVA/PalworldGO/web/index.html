@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Monster GO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+    <div id="map"></div>
+
+    <!-- 상단 UI -->
+    <div class="top-ui">
+        <div class="weather-panel">
+            <i id="weather-icon" class="fas fa-sun"></i>
+            <div class="weather-info">
+                <span id="weather-text">맑음</span>
+                <small id="weather-boost">불 타입 확률 UP</small>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <div class="level-badge">Lv.10</div>
+            <div class="exp-container">
+                <div class="exp-fill" style="width: 60%"></div>
+            </div>
+        </div>
+
+        <div class="gold-panel">
+            <i class="fas fa-coins" style="color: #ffd700;"></i>
+            <span id="gold-val">1,250</span>
+        </div>
+    </div>
+
+    <!-- 하단 UI -->
+    <div class="bottom-ui">
+        <!-- 왼쪽 하단: 프로필 -->
+        <div class="profile-section" onclick="handleProfileClick()">
+            <div class="profile-btn">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div id="user-info" class="user-info hidden">
+                <span id="display-id">GUEST</span>
+                <small id="display-level">Lv.10</small>
+            </div>
+        </div>
+
+        <!-- 중앙: 스폰 버튼 -->
+        <button class="spawn-btn" onclick="requestSpawn()">
+            <div class="pulse-ring"></div>
+            탐색
+        </button>
+
+        <!-- 오른쪽 하단: 도감 -->
+        <button class="book-btn" onclick="location.href='collection.html'">
+            <i class="fas fa-book-atlas"></i>
+            <span>도감</span>
+        </button>
+    </div>
+
+    <!-- 포획 모달 및 게임 창 (기존 유지) -->
+    <div id="capture-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeCaptureModal()">×</button>
+            <h2 id="m-name">몬스터 발견!</h2>
+            <p id="m-type">타입: </p>
+            <button class="try-btn" onclick="tryCapture()">포획 시도</button>
+        </div>
+    </div>
+
+    <div id="capture-game" class="hidden">
+        <div id="timer">10</div>
+        <img id="moving-pokemon" src="">
+    </div>
+</div>
+
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=b4f6168c940780cfe1edaa11b3b5147f&autoload=false"></script>
+<script src="script.js"></script>
+<script src="capture.js"></script>
+</body>
+</html>
