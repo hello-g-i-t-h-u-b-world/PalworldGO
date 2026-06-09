@@ -1,87 +1,108 @@
 package com.game.service;
 
 import com.game.DatabaseManager;
-import com.game.model.Monster;
+import com.game.model.monster.Monster;
+import com.game.model.monster.MonsterFactory;
+import com.game.model.monster.SpawnedMonster;
+import com.game.model.weather.WeatherBoost;
+import com.game.model.weather.WeatherFactory;
 import com.game.util.LocationUtil;
-import com.game.util.BoostedTypeManager; // 💡 새로 만든 독립 클래스 임포트
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class SpawnService {
+
     private static final Random random = new Random();
 
-    // 현재 날씨 저장
     public static String currentWeather = "";
 
-    // 스폰 ID
     private static int nextSpawnId = 1;
 
-    public static Monster generateMonster(double userLat, double userLng) {
-        // 현재 날씨 가져오기
+    public static SpawnedMonster generateMonster(double userLat, double userLng) {
+
         String weather = WeatherService.getWeather(userLat, userLng);
 
-        // 현재 날씨 저장
         currentWeather = weather;
 
-        // 날씨 부스트 타입 호출
-        String boostedType = BoostedTypeManager.getBoostedType(weather);
+        WeatherBoost weatherBoost = WeatherFactory.createWeather(weather);
 
-        List<Monster> boostedMonsters = new ArrayList<>();
-        List<Monster> normalMonsters = new ArrayList<>();
+        List<Monster> monsters = new ArrayList<>();
 
-        try (Connection conn = DatabaseManager.connect()) {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM monsters");
+        try(Connection conn = DatabaseManager.connect()) {
+            // db에서 몬스터들 불러오기
+            PreparedStatement ps =
+                    conn.prepareStatement(
+                            "SELECT * FROM monsters");
+
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()) {
-                Monster monster = new Monster();
-                monster.id = rs.getInt("id");
-                monster.name = rs.getString("name");
-                monster.type = rs.getString("type");
 
-                // 날씨 강화 타입 분리
-                if(monster.type.equals(boostedType)) {
-                    boostedMonsters.add(monster);
-                } else {
-                    normalMonsters.add(monster);
-                }
+                Monster monster =
+                        MonsterFactory.createMonster(
+                                rs.getInt("id"),
+                                rs.getString("name"),
+                                rs.getString("type")
+                        );
+
+                monsters.add(monster);
             }
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
 
-        Monster selectedMonster;
-        int chance = random.nextInt(100);
-
-        // 50% 확률 강화 타입 선택
-        if(chance < 50 && !boostedMonsters.isEmpty()) {
-            selectedMonster = boostedMonsters.get(random.nextInt(boostedMonsters.size()));
-        } else {
-            selectedMonster = normalMonsters.get(random.nextInt(normalMonsters.size()));
+        if(monsters.isEmpty()) {
+            return null;
         }
 
-        // =========================
-        // 스폰 개체 고유 ID 부여
-        // =========================
-        selectedMonster.spawnId = nextSpawnId++;
+        // 전체 가중치 계산
+        int totalWeight = 0;
 
-        // 랜덤 위치 생성
+        for(Monster monster : monsters) {
+
+            int weight = monster.getBaseSpawnWeight() + weatherBoost.getSpawnBonus(monster);
+
+            totalWeight += weight;
+        }
+
+        // 랜덤 추첨
+        int randomValue = random.nextInt(totalWeight);
+
+        Monster selectedMonster = null;
+
+        int accumulatedWeight = 0;
+
+        for(Monster monster : monsters) {
+
+            accumulatedWeight += monster.getBaseSpawnWeight() + weatherBoost.getSpawnBonus(monster);
+
+            if(randomValue < accumulatedWeight) {
+
+                selectedMonster = monster;
+                break;
+            }
+        }
+
         double[] pos = LocationUtil.getRandomPosition(userLat, userLng, 100);
-        selectedMonster.lat = pos[0];
-        selectedMonster.lng = pos[1];
 
-        System.out.println("현재 날씨: " + weather);
-        System.out.println("확률 증가 타입: " + boostedType);
-        System.out.println("스폰 몬스터: " + selectedMonster.name);
-        System.out.println("spawnId: " + selectedMonster.spawnId);
+        SpawnedMonster spawnedMonster = new SpawnedMonster(nextSpawnId++, selectedMonster, pos[0], pos[1]);
 
-        return selectedMonster;
+        // 테스트 코드
+        System.out.println("현재 날씨 : " + weather);
+        System.out.println("스폰 몬스터 : " + selectedMonster.getName());
+        System.out.println("기본 가중치 : " + selectedMonster.getBaseSpawnWeight());
+        System.out.println("날씨 보너스 : " + weatherBoost.getSpawnBonus(selectedMonster));
+        System.out.println("최종 가중치 : " + (selectedMonster.getBaseSpawnWeight() + weatherBoost.getSpawnBonus(selectedMonster)));
+        System.out.println(selectedMonster.getClass().getSimpleName());
+        System.out.println("WEATHER RAW = " + weather);
+        System.out.println("BOOST CLASS = " + weatherBoost.getClass().getSimpleName());
+
+        return spawnedMonster;
     }
 }

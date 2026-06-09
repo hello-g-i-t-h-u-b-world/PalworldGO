@@ -3,10 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <title>인벤토리</title>
+
+    <style>
+
+        body {
+            background: #f5f5f5;
+            font-family: sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .header {
+
+            display: flex;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+
+            background: white;
+
+            border: none;
+
+            border-radius: 10px;
+
+            padding: 10px 15px;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+            box-shadow:
+                    0 2px 5px
+                    rgba(0,0,0,0.2);
+
+            margin-right: 15px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        #inventory-list {
+
+            display: grid;
+
+            grid-template-columns:
+                    repeat(
+                            auto-fill,
+                            minmax(180px, 1fr)
+                    );
+
+            gap: 15px;
+        }
+
+        .monster-card {
+
+            background: white;
+
+            border-radius: 15px;
+
+            padding: 15px;
+
+            text-align: center;
+
+            box-shadow:
+                    0 2px 10px
+                    rgba(0,0,0,0.1);
+
+            border: 4px solid #ccc;
+        }
+
+        .monster-card img {
+
+            width: 100px;
+
+            height: 100px;
+
+            object-fit: contain;
+
+            margin-bottom: 10px;
+        }
+
+        .monster-name {
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+        }
+
+        .monster-type {
+
+            display: inline-block;
+
+            padding: 4px 10px;
+
+            border-radius: 20px;
+
+            color: white;
+
+            font-size: 12px;
+
+            margin-bottom: 8px;
+        }
+
+        .monster-time {
+
+            font-size: 12px;
+
+            color: #777;
+        }
+
+        /* 타입별 카드 색상 */
+
+        .fire {
+            border-color: #ff6b6b;
+        }
+
+        .water {
+            border-color: #4dabf7;
+        }
+
+        .electric {
+            border-color: #ffd43b;
+        }
+
+        .grass {
+            border-color: #51cf66;
+        }
+
+        /* 타입 배지 */
+
+        .fire .monster-type {
+            background: #ff6b6b;
+        }
+
+        .water .monster-type {
+            background: #4dabf7;
+        }
+
+        .electric .monster-type {
+            background: #ffd43b;
+            color: black;
+        }
+
+        .grass .monster-type {
+            background: #51cf66;
+        }
+
+    </style>
+
 </head>
 <body>
 
-<h1>내 몬스터</h1>
+<div class="header">
+
+    <button
+            class="back-btn"
+            onclick="location.href='index.html'"
+    >
+        ←
+    </button>
+
+    <h1>내 몬스터</h1>
+
+</div>
 
 <div id="inventory-list"></div>
 
@@ -15,29 +181,104 @@
     async function loadInventory() {
 
         const userId =
-            localStorage.getItem("userId");
-
-        const response = await fetch(
-            `http://localhost:8080/inventory?userId=${userId}`
-        );
-
-        const list =
-            await response.json();
-
-        const div =
-            document.getElementById(
-                "inventory-list"
+            sessionStorage.getItem(
+                "userId"
             );
 
-        list.forEach(monster => {
+        if(!userId) {
 
-            div.innerHTML += `
-            <div>
-                ${monster.name}
-                (${monster.type})
-            </div>
-        `;
-        });
+            alert(
+                "로그인이 필요합니다."
+            );
+
+            location.href =
+                "login.html";
+
+            return;
+        }
+
+        try {
+
+            const response =
+                await fetch(
+                    `http://localhost:8080/inventory?userId=${userId}`
+                );
+
+            const list =
+                await response.json();
+
+            const div =
+                document.getElementById(
+                    "inventory-list"
+                );
+
+            if(list.length === 0) {
+
+                div.innerHTML =
+                    "<p>포획한 몬스터가 없습니다.</p>";
+
+                return;
+            }
+
+            list.forEach(monster => {
+
+                let typeClass = "";
+
+                switch(monster.type) {
+
+                    case "불":
+                        typeClass = "fire";
+                        break;
+
+                    case "물":
+                        typeClass = "water";
+                        break;
+
+                    case "전기":
+                        typeClass = "electric";
+                        break;
+
+                    case "풀":
+                        typeClass = "grass";
+                        break;
+                }
+
+                div.innerHTML += `
+                <div class="monster-card ${typeClass}">
+
+                    <img
+                        src="images/${monster.name}.png"
+                        onerror="this.src='images/default.png'"
+                    >
+
+                    <div class="monster-name">
+                        ${monster.name}
+                    </div>
+
+                    <div class="monster-type">
+                        ${monster.type}
+                    </div>
+
+                    <div class="monster-time">
+                        ${monster.time}
+                    </div>
+
+                </div>
+            `;
+            });
+
+        } catch(e) {
+
+            console.error(
+                "인벤토리 로딩 실패",
+                e
+            );
+
+            document.getElementById(
+                "inventory-list"
+            ).innerHTML =
+                "<p>인벤토리를 불러오지 못했습니다.</p>";
+        }
     }
 
     loadInventory();

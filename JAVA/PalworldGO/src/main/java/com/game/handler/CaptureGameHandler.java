@@ -62,7 +62,7 @@ public class CaptureGameHandler implements HttpHandler {
                 return;
             }
 
-            // 💡 독립된 비즈니스 서비스 레이어로직 위임 실행
+            // 독립된 비즈니스 서비스 레이어로직 위임 실행
             JsonObject captureResult = captureService.calculateAndCapture(userId, monsterName, type, clickCount);
             boolean success = captureResult.get("success").getAsBoolean();
 
@@ -90,12 +90,13 @@ public class CaptureGameHandler implements HttpHandler {
             System.err.println("[오류 발생] CaptureGameHandler 서블릿 연산 실패:");
             e.printStackTrace();
 
-            // 💡 서버 내부 오류(500) 발생 시 프론트엔드가 정상 파싱할 수 있도록 JSON 문자열 포맷 구조로 응답 보장
+            // 서버 내부 오류(500) 발생 시 프론트엔드가 정상 파싱할 수 있도록 JSON 문자열 포맷 구조로 응답 보장
             String errorJson = "{\"error\":\"Internal Server Error\",\"success\":false,\"rate\":0}";
             byte[] bytes = errorJson.getBytes(StandardCharsets.UTF_8);
 
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(500, bytes.length);
+
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(bytes);
                 os.flush();

@@ -6,13 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class PokedexService {
-
-    /**
-     * 유저의 도감 기록을 확인하고, 처음 포획한 신규 몬스터일 경우에만 도감 테이블에 추가합니다.
-     */
     public static void checkAndRegisterPokedex(Connection conn, int userId, String monsterName) {
         try {
-            // 1. 도감(pokedex) 중복 여부 체크
+            // 도감(pokedex) 중복 여부 체크
             String sqlCheck = "SELECT * FROM pokedex WHERE user_id=? AND monster_name=?";
             boolean alreadyDiscovered = false;
 
@@ -26,7 +22,7 @@ public class PokedexService {
                 }
             }
 
-            // 2. 발견 기록이 없을 때만 새롭게 도감 추가
+            // 발견 기록이 없을 때만 새롭게 도감 추가
             if (!alreadyDiscovered) {
                 String sqlPokedex = "INSERT INTO pokedex (user_id, monster_name) VALUES (?, ?)";
                 try (PreparedStatement pokedex = conn.prepareStatement(sqlPokedex)) {

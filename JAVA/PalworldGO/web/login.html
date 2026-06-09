@@ -15,6 +15,162 @@
     Monster GO Login
   </title>
 
+  <style>
+    /* 기본 배경 설정 */
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* 전체 컨테이너: 긴 제목을 수용하기 위해 너비를 살짝 확장 */
+    .login-container {
+      width: 90%;
+      max-width: 480px; /* 기존 400px에서 확장 */
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* 로그인 박스: 긴 텍스트가 들어가도 여백이 느껴지도록 조정 */
+    .login-box {
+      background: rgba(255, 255, 255, 0.92);
+      padding: 50px 40px;
+      border-radius: 35px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    /* 타이틀: 긴 이름을 가독성 있게 배치 */
+    .login-title {
+      font-size: 24px; /* 긴 문장이므로 크기를 적절히 줄임 */
+      line-height: 1.4;
+      color: #2c3e50;
+      margin: 0 0 12px 0;
+      font-weight: 800;
+      word-break: keep-all; /* 단어 단위로 줄바꿈되어 깔끔하게 표시 */
+      letter-spacing: -0.5px;
+      /* 텍스트 강조 효과 */
+      background: linear-gradient(to right, #2c3e50, #3498db);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 서브타이틀 */
+    .login-subtitle {
+      font-size: 15px;
+      color: #576574;
+      margin-bottom: 35px;
+      font-weight: 500;
+    }
+
+    /* 입력 그룹 */
+    .input-group {
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #3498db;
+      font-size: 18px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 16px 16px 16px 50px;
+      box-sizing: border-box;
+      border: 2px solid #edf2f7;
+      border-radius: 18px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+      background-color: #f8fafc;
+    }
+
+    .input-group input:focus {
+      border-color: #3498db;
+      background-color: #fff;
+      box-shadow: 0 0 15px rgba(52, 152, 219, 0.15);
+    }
+
+    /* 버튼 공통 스타일 */
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 18px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    /* 로그인 버튼 */
+    .login-btn {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      color: white;
+      box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+      margin-top: 25px;
+    }
+
+    .login-btn:hover {
+      box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+      filter: brightness(1.1);
+    }
+
+    /* 회원가입 버튼 */
+    .register-btn {
+      background: #f1f2f6;
+      color: #747d8c;
+      margin-top: 12px;
+    }
+
+    .register-btn:hover {
+      background: #dfe4ea;
+      color: #2f3542;
+    }
+
+    /* 배경 장식 원 (모바일 느낌 강조) */
+    body::before, body::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      z-index: -1;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    body::before {
+      width: 250px;
+      height: 250px;
+      top: -50px;
+      right: -50px;
+    }
+
+    body::after {
+      width: 180px;
+      height: 180px;
+      bottom: 20px;
+      left: -30px;
+    }
+  </style>
+
   <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -33,7 +189,7 @@
   <div class="login-box">
 
     <h1 class="login-title">
-      Monster GO
+      실시간 위치 및 날씨 기반 몬스터 수집 게임
     </h1>
 
     <p class="login-subtitle">

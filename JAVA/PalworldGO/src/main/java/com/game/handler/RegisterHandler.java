@@ -73,9 +73,7 @@ public class RegisterHandler implements HttpHandler {
 
             result.addProperty("success", true);
 
-            byte[] bytes =
-                    gson.toJson(result)
-                            .getBytes(StandardCharsets.UTF_8);
+            byte[] bytes = gson.toJson(result).getBytes(StandardCharsets.UTF_8);
 
             exchange.sendResponseHeaders(200, bytes.length);
 

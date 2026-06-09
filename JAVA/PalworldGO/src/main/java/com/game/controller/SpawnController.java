@@ -1,47 +1,41 @@
 package com.game.controller;
 
-import com.game.model.Monster;
+import com.game.model.monster.SpawnedMonster;
 import com.game.service.SpawnService;
-
 import com.google.gson.Gson;
-
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.OutputStream;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class SpawnController implements HttpHandler {
+
     private final Gson gson = new Gson();
 
-    // 현재 맵 몬스터
-    private static final List<Monster> monsters = new ArrayList<>();
+    private static final List<SpawnedMonster> monsters = new ArrayList<>();
 
-    // 마지막 스폰 시간
     private static long lastSpawnTime = System.currentTimeMillis();
 
-    // 최대 몬스터 수
     private static final int MAX_MONSTERS = 5;
 
     private static final Random random = new Random();
 
-    // 다음 스폰 시간
     private static long nextSpawnDelay = randomDelay();
 
     @Override
     public void handle(HttpExchange exchange) {
+
         try {
+
             String query = exchange.getRequestURI().getQuery();
 
             double lat = 37.5;
             double lng = 126.9;
 
             if(query != null) {
+
                 String[] params = query.split("&");
 
                 lat = Double.parseDouble(params[0].split("=")[1]);
@@ -51,16 +45,24 @@ public class SpawnController implements HttpHandler {
 
             long now = System.currentTimeMillis();
 
-            // 5~10초마다 스폰
+            // 자동 스폰
             if(now - lastSpawnTime >= nextSpawnDelay) {
 
-                // 최대 5마리 제한
                 if(monsters.size() < MAX_MONSTERS) {
-                    Monster monster = SpawnService.generateMonster(lat, lng);
 
-                    monsters.add(monster);
+                    SpawnedMonster spawnedMonster =
+                            SpawnService.generateMonster(
+                                    lat,
+                                    lng
+                            );
 
-                    System.out.println("몬스터 생성: " + monster.name);
+                    monsters.add(spawnedMonster);
+
+                    System.out.println("몬스터 생성 : "
+                                        + spawnedMonster
+                                        .getMonster()
+                                        .getName()
+                    );
                 }
 
                 lastSpawnTime = now;
@@ -68,58 +70,72 @@ public class SpawnController implements HttpHandler {
                 nextSpawnDelay = randomDelay();
             }
 
-            // 응답 데이터
-            Map<String, Object> response = new HashMap<>();
+            Map<String,Object> response = new HashMap<>();
 
             response.put("weather", SpawnService.currentWeather);
 
-            response.put("monsters", monsters);
+            List<Map<String,Object>> monsterList = new ArrayList<>();
+
+            for(SpawnedMonster monster : monsters) {
+
+                Map<String,Object> m = new HashMap<>();
+
+                m.put("spawnId", monster.getSpawnId());
+
+                m.put("id", monster.getMonster().getId());
+
+                m.put("name", monster.getMonster().getName());
+
+                m.put("type", monster.getMonster().getType());
+
+                m.put("lat", monster.getLat());
+
+                m.put("lng", monster.getLng());
+
+                monsterList.add(m);
+            }
+
+            response.put("monsters", monsterList);
 
             String json = gson.toJson(response);
 
-            exchange
-                    .getResponseHeaders()
-                    .add(
-                            "Access-Control-Allow-Origin",
-                            "*"
-                    );
+            exchange.getResponseHeaders().add(
+                    "Access-Control-Allow-Origin",
+                    "*"
+            );
 
-            exchange
-                    .getResponseHeaders()
-                    .add(
-                            "Content-Type",
-                            "application/json"
-                    );
+            exchange.getResponseHeaders().add(
+                    "Content-Type",
+                    "application/json"
+            );
+
+            byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
 
             exchange.sendResponseHeaders(
                     200,
-                    json.getBytes().length
+                    bytes.length
             );
 
-            OutputStream os =
-                    exchange.getResponseBody();
-
-            os.write(json.getBytes());
-
-            os.close();
+            try(OutputStream os = exchange.getResponseBody()) {
+                os.write(bytes);
+            }
 
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
-    // 랜덤 스폰 시간
     private static long randomDelay() {
         return 5000 + random.nextInt(5000);
     }
 
-    // spawnId 기반 제거
     public static void removeMonster(int spawnId) {
-        monsters.removeIf(
-                monster ->
-                        monster.spawnId == spawnId
-        );
+        monsters.removeIf(monster -> monster.getSpawnId() == spawnId);
 
-        System.out.println("몬스터 제거 완료: " + spawnId);
+        System.out.println("몬스터 제거 완료 : " + spawnId);
+    }
+
+    public static List<SpawnedMonster> getMonsters() {
+        return monsters;
     }
 }

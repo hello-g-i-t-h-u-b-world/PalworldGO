@@ -12,6 +12,10 @@
 <div id="game-container">
     <div id="map"></div>
 
+    <button id="mylocation-btn" onclick="moveToUserLocation()">
+    <i class="fas fa-crosshairs"></i>
+    </button>
+
     <!-- 상단 UI -->
     <div class="top-ui">
         <div class="weather-panel">
@@ -48,10 +52,10 @@
             </div>
         </div>
 
-        <!-- 중앙: 스폰 버튼 -->
-        <button class="spawn-btn" onclick="requestSpawn()">
-            <div class="pulse-ring"></div>
-            탐색
+        <!-- 중앙: 인벤토리 버튼 -->
+        <button class="inventory-btn" onclick="location.href='inventory.html'">
+            <i class="fas fa-inventory-atlas"></i>
+            <span>인벤토리</span>
         </button>
 
         <!-- 오른쪽 하단: 도감 -->

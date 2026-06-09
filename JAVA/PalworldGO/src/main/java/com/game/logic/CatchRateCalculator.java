@@ -10,6 +10,7 @@ public class CatchRateCalculator implements PercentProbability {
     @Override
     public int calculateSuccessRate() {
         int rate = 30 + (this.clickCount * 4);
+
         return Math.min(rate, 95); // 최대 95% 제한
     }
 }
